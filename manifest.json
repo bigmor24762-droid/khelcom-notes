@@ -1,0 +1,15 @@
+{
+  "name": "Khelcom Aviculture",
+  "short_name": "Khelcom",
+  "start_url": "khelcom.html",
+  "display": "standalone",
+  "background_color": "#2E7D32",
+  "theme_color": "#2E7D32",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/jpg"
+    }
+  ]
+}

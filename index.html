@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2E7D32">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="logo-khelcom.jpg">
+    <title>Khelcom Aviculture</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f0f8f0;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .header {
+            background: #2E7D32;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .header img {
+            width: 45px;
+            height: 45px;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .header h2 {
+            display: inline;
+            vertical-align: middle;
+            font-size: 18px;
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .tab {
+            padding: 10px 3px;
+            background: #ddd;
+            border: none;
+            font-weight: bold;
+            font-size: 11px;
+            border-radius: 5px;
+        }
+
+        .tab.active {
+            background: #1976D2;
+            color: white;
+        }
+
+        .content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .note {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 8px;
+            border-left: 4px solid #1976D2;
+        }
+
+        .date {
+            font-size: 12px;
+            color: #555;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header"><img src="logo-khelcom.jpg" alt="Logo">
+        <h2>KHELCOM AVICULTURE</h2>
+    </div>
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('poulets')">POULETS</button>
+        <button class="tab" onclick="showTab('aliment')">ALIMENT</button>
+        <button class="tab" onclick="showTab('ventes')">VENTES</button>
+        <button class="tab" onclick="showTab('sante')">SANTÉ</button>
+        <button class="tab" onclick="showTab('depenses')">DEPENSES</button>
+        <button class="tab" onclick="showTab('notes')">NOTES</button>
+    </div>
+
+    <div id="poulets" class="content">
+        <h3>🐔 Nombre de Poulets</h3>
+        <textarea id="notePoulets" placeholder="Ex: 500 poulets de chair arrivés
+Mortalité: 2
+Total actuel: 498"></textarea>
+        <button onclick="saveNote('poulets')">+ Enregistrer</button>
+        <div id="listPoulets"></div>
+    </div>
+
+    <div id="aliment" class="content" style="display:none;">
+        <h3>🌾 Aliment</h3>
+        <textarea id="noteAliment" placeholder="Ex: 10 sacs de démarrage donnés
+Reste en stock: 15 sacs"></textarea>
+        <button onclick="saveNote('aliment')">+ Enregistrer</button>
+        <div id="listAliment"></div>
+    </div>
+
+    <div id="ventes" class="content" style="display:none;">
+        <h3>💵 Ventes</h3>
+        <textarea id="noteVentes" placeholder="Ex: Vendu 50 poulets à 3500F
+Client: M. Diop Tel: 77xxxxxxx"></textarea>
+        <button onclick="saveNote('ventes')">+ Enregistrer</button>
+        <div id="listVentes"></div>
+    </div>
+
+    <div id="sante" class="content" style="display:none;">
+        <h3>💉 Santé / Vaccins</h3>
+        <textarea id="noteSante" placeholder="Ex: Vaccin Newcastle fait
+Médicament: Vitamine C"></textarea>
+        <button onclick="saveNote('sante')">+ Enregistrer</button>
+        <div id="listSante"></div>
+    </div>
+
+    <div id="depenses" class="content" style="display:none;">
+        <h3>💰 Dépenses</h3>
+        <textarea id="noteDepenses" placeholder="Ex: Achat 20 sacs aliment: 150000F
+Facture électricité: 25000F"></textarea>
+        <button onclick="saveNote('depenses')">+ Enregistrer</button>
+        <div id="listDepenses"></div>
+    </div>
+
+    <div id="notes" class="content" style="display:none;">
+        <h3>📝 Notes</h3>
+        <textarea id="noteNotes" placeholder="Ex: Nettoyer le poulailler demain
+Rappeler le fournisseur"></textarea>
+        <button onclick="saveNote('notes')">+ Enregistrer</button>
+        <div id="listNotes"></div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {navigator.serviceWorker.register('sw.js');}
+        function showTab(tab) {['poulets', 'aliment', 'ventes', 'sante', 'depenses', 'notes'].forEach(t => {document.getElementById(t).style.display = 'none';}); document.getElementById(tab).style.display = 'block'; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); loadNotes();}
+        function saveNote(type) {const typeName = type.charAt(0).toUpperCase() + type.slice(1); const text = document.getElementById('note' + typeName).value; if (text.trim() === '') return alert('Écris une note d\'abord'); const date = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}); const note = {date: date, text: text}; let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || []; notes.unshift(note); localStorage.setItem('khelcom_' + type, JSON.stringify(notes)); document.getElementById('note' + typeName).value = ''; loadNotes();}
+        function loadNotes() {['poulets', 'aliment', 'ventes', 'sante', 'depenses', 'notes'].forEach(type => {let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || []; let html = ''; notes.forEach(n => {html += `<div class="note"><div class="date">${n.date}</div>${n.text}</div>`;}); const typeName = type.charAt(0).toUpperCase() + type.slice(1); document.getElementById('list' + typeName).innerHTML = html;});} loadNotes();
+    </script>
+</body>
+
+</html>
