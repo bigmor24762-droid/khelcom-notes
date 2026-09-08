@@ -171,6 +171,13 @@ Rappeler le fournisseur"></textarea>
         function saveNote(type) {const typeName = type.charAt(0).toUpperCase() + type.slice(1); const text = document.getElementById('note' + typeName).value; if (text.trim() === '') return alert('Écris une note d\'abord'); const date = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}); const note = {date: date, text: text}; let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || []; notes.unshift(note); localStorage.setItem('khelcom_' + type, JSON.stringify(notes)); document.getElementById('note' + typeName).value = ''; loadNotes();}
         function loadNotes() {['poulets', 'aliment', 'ventes', 'sante', 'depenses', 'notes'].forEach(type => {let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || []; let html = ''; notes.forEach(n => {html += `<div class="note"><div class="date">${n.date}</div>${n.text}</div>`;}); const typeName = type.charAt(0).toUpperCase() + type.slice(1); document.getElementById('list' + typeName).innerHTML = html;});} loadNotes();
     </script>
+    <script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+</script>
 </body>
 
 </html>
