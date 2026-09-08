@@ -165,18 +165,72 @@ Rappeler le fournisseur"></textarea>
         <div id="listNotes"></div>
     </div>
 
-    <script>
-        if ('serviceWorker' in navigator) {navigator.serviceWorker.register('sw.js');}
-        function showTab(tab) {['poulets', 'aliment', 'ventes', 'sante', 'depenses', 'notes'].forEach(t => {document.getElementById(t).style.display = 'none';}); document.getElementById(tab).style.display = 'block'; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); loadNotes();}
-        function saveNote(type) {const typeName = type.charAt(0).toUpperCase() + type.slice(1); const text = document.getElementById('note' + typeName).value; if (text.trim() === '') return alert('Écris une note d\'abord'); const date = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}); const note = {date: date, text: text}; let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || []; notes.unshift(note); localStorage.setItem('khelcom_' + type, JSON.stringify(notes)); document.getElementById('note' + typeName).value = ''; loadNotes();}
-        function loadNotes() {['poulets', 'aliment', 'ventes', 'sante', 'depenses', 'notes'].forEach(type => {let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || []; let html = ''; notes.forEach(n => {html += `<div class="note"><div class="date">${n.date}</div>${n.text}</div>`;}); const typeName = type.charAt(0).toUpperCase() + type.slice(1); document.getElementById('list' + typeName).innerHTML = html;});} loadNotes();
-    </script>
-    <script>
+   <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js');
   });
 }
+
+function showTab(tab) {
+  ['poulets', 'aliment', 'ventes', 'sante', 'depenses', 'notes'].forEach(t => {
+    document.getElementById(t).style.display = 'none';
+  }); 
+  document.getElementById(tab).style.display = 'block'; 
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
+  event.target.classList.add('active'); 
+  loadNotes();
+}
+
+function saveNote(type) {
+  const typeName = type.charAt(0).toUpperCase() + type.slice(1); 
+  const text = document.getElementById('note' + typeName).value; 
+  if (text.trim() === '') return alert('Écris une note d\'abord'); 
+  
+  const date = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}); 
+  
+  const note = {date: date, text: text, id: Date.now()}; // j'ajoute un id unique
+  
+  let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || []; 
+  notes.unshift(note); 
+  localStorage.setItem('khelcom_' + type, JSON.stringify(notes)); 
+  
+  document.getElementById('note' + typeName).value = ''; 
+  loadNotes();
+}
+
+function loadNotes() {
+  ['poulets', 'aliment', 'ventes', 'sante', 'depenses', 'notes'].forEach(type => {
+    let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || []; 
+    let html = ''; 
+    
+    notes.forEach(n => {
+      html += `
+        <div class="note">
+          <div class="date">${n.date}</div>
+          ${n.text}
+          <button onclick="deleteNote('${type}', ${n.id})" style="background:#d32f2f; color:white; border:none; padding:5px 10px; border-radius:5px; margin-top:8px; font-size:12px; width:100%;">
+            🗑️ Supprimer
+          </button>
+        </div>
+      `;
+    }); 
+    
+    const typeName = type.charAt(0).toUpperCase() + type.slice(1); 
+    document.getElementById('list' + typeName).innerHTML = html;
+  });
+}
+
+function deleteNote(type, id) {
+  if(confirm("Supprimer cette note ?")) {
+    let notes = JSON.parse(localStorage.getItem('khelcom_' + type)) || [];
+    notes = notes.filter(n => n.id !== id); // on garde tout sauf celle avec cet id
+    localStorage.setItem('khelcom_' + type, JSON.stringify(notes));
+    loadNotes();
+  }
+}
+
+loadNotes();
 </script>
 </body>
 
